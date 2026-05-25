@@ -12,7 +12,7 @@ This repo is the **public face** of the integration — the server runs from our
 
 | Tool | What it returns | Auth |
 |---|---|---|
-| `list_products` | Catalog with ΔE-ranked shade matching, brand/tag filters, sort by price/popularity/rating | Anonymous |
+| `list_products` | Catalog browse: cross-lingual semantic search (`q`), ΔE-ranked shade matching (`near_hex`, returns `shade_match: {hex, delta_e}` per product), brand / exact-Hebrew tag filters, sort by price / popularity / Bayesian-shrunk rating | Anonymous |
 | `validate_gift_card` | Gift card balance | Public (gated on the gift-card code) |
 | `list_brands` | Every brand we carry — Yossi Bitton's B Cosmic, da Vinci (Defet) brushes, INGLOT, NYX, and dozens more | Bearer |
 | `get_customer` | Customer profile, ℳ-credit wallet, M Club tier | Bearer |
@@ -36,7 +36,7 @@ curl -X POST https://makeup.land/api/mcp \
     "method": "tools/call",
     "params": {
       "name": "list_products",
-      "arguments": { "near_hex": "#C2185B", "tag": "lipstick", "limit": 5 }
+      "arguments": { "near_hex": "#C2185B", "q": "lipstick", "limit": 5 }
     }
   }'
 
@@ -107,7 +107,13 @@ Use `list_brands` to enumerate all of them at runtime.
 
 The flagship feature. Every variant in our catalog carries swatch hex colours; the `list_products` tool's `near_hex` argument runs a perceptual-distance ranking (CIE ΔE 2000) so an agent can answer "find a lipstick that looks like #C2185B" in one call. Pair with `hue_family=warm|cool|neutral` to refine.
 
+Each returned product carries a **`shade_match: {hex, delta_e}`** field identifying the closest variant swatch and its perceptual distance — so on a 40-shade palette, you know which specific shade was the match (and how close it is), not just which palette.
+
 This is the surface that makes makeup.land's MCP server uniquely useful for shopping agents — no other Israeli cosmetics retailer exposes shade matching through MCP, and very few retailers globally expose it at all.
+
+## Cross-lingual catalog search
+
+Send `q` (natural language) instead of `tag` for category lookups. `q` routes through Jina v4 embed + Gemini intent + pgvector + reranker — so `q="lipstick"`, `q="שפתון"`, and `q="lápiz labial"` return the same Hebrew-tagged lipsticks. `tag` is a literal-string filter against Hebrew-stored tags only; English category words will not match it.
 
 ## Authentication
 

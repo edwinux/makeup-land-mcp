@@ -113,7 +113,7 @@ This is the surface that makes makeup.land's MCP server uniquely useful for shop
 
 ## Cross-lingual catalog search
 
-Send `q` (natural language) instead of `tag` for category lookups. `q` routes through Jina v4 embed + Gemini intent + pgvector + reranker — so `q="lipstick"`, `q="שפתון"`, and `q="lápiz labial"` return the same Hebrew-tagged lipsticks. `tag` is a literal-string filter against Hebrew-stored tags only; English category words will not match it.
+Send `q` (natural language) instead of `tag` for category lookups. `q` is a cross-lingual semantic search — `q="lipstick"`, `q="שפתון"`, and `q="lápiz labial"` each return Hebrew-tagged lipsticks. The surfaced product set may differ across query languages (the system ranks by semantic relevance, not by language-canonicalisation), but each is a valid lipstick page. `tag` is a literal-string filter against Hebrew-stored tags only; English category words will not match it.
 
 ## Authentication
 
